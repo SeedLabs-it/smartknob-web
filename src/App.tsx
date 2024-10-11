@@ -99,16 +99,15 @@ function App() {
                 ? settings.ledRing?.minBright / (65535 / 100)
                 : 10,
               color:
-                "#" + settings.ledRing?.color?.toString(16).padStart(6, "0") ??
-                "#008080",
+                "#" + settings.ledRing?.color?.toString(16).padStart(6, "0"),
               beacon: {
                 enabled: settings.ledRing?.beacon?.enabled ?? true,
                 brightness: settings.ledRing?.beacon?.brightness ?? 10,
                 color:
                   "#" +
-                    settings.ledRing?.beacon?.color
-                      ?.toString(16)
-                      .padStart(6, "0") ?? "#008080",
+                  settings.ledRing?.beacon?.color
+                    ?.toString(16)
+                    .padStart(6, "0"),
               },
             },
           },
@@ -132,6 +131,11 @@ function App() {
 
     if (message.payload === "log" && message.log !== null) {
       const timestamp = Date.now();
+
+      if (!message.log?.isVerbose) {
+        console.log(message.log!.msg);
+        console.log(message.log!.level);
+      }
 
       const log = {
         timestamp,

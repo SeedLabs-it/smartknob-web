@@ -144,6 +144,8 @@ export class SmartKnobCore {
     // Encode before enqueueing to ensure messages don't change once they're queued
     const payload = PB.ToSmartknob.encode(message).finish();
 
+    console.log(message);
+
     if (this.outgoingQueue.length > 10) {
       console.warn(
         `SmartKnob outgoing queue overflowed! Dropping ${this.outgoingQueue.length} pending messages!`,
