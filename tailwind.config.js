@@ -11,8 +11,8 @@ export default {
         skdk: "#47585C",
         secondary: "#80989B",
         log: {
-          info: "#9BF256",
-          debug: "#FFFFFF",
+          info: "#FFFFFF",
+          debug: "#9BF256",
           warning: "#EFEE00",
           error: "#FE4344",
         },
