@@ -47,7 +47,7 @@ function LayoutComponent() {
   const connectToSerial = async () => {
     try {
       if (navigator.serial) {
-        var serialPort = await navigator.serial.requestPort({
+        const serialPort = await navigator.serial.requestPort({
           filters: SmartKnobWebSerial.USB_DEVICE_FILTERS,
         });
         serialPort.addEventListener("disconnect", async () => {
@@ -55,7 +55,7 @@ function LayoutComponent() {
           console.log("Device disconnected");
           disconnectAlert();
         });
-        connectToSmartKnob(serialPort);
+        await connectToSmartKnob(serialPort);
       } else {
         console.error("Web Serial API is not supported in this browser.");
         // setSmartKnob(undefined);
@@ -112,6 +112,7 @@ function LayoutComponent() {
                 enabled: settings.ledRing?.beacon?.enabled ?? true,
                 brightness: settings.ledRing?.beacon?.brightness ?? 10,
                 color:
+                  // @ts-expect-error unnecessary nullish coalescing
                   "#" +
                   settings.ledRing?.beacon?.color
                     ?.toString(16)
@@ -209,7 +210,7 @@ function LayoutComponent() {
         <div className="flex-grow content-end">
           <img
             src={seedlabsLogo}
-            className="flex h-full w-60  flex-col"
+            className="flex h-full w-60 flex-col"
             alt=""
           />
         </div>
