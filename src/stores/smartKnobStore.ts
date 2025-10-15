@@ -4,6 +4,7 @@ import { SmartKnobLog } from "../types";
 import { SmartKnobWebSerial } from "../webserial";
 
 interface SmartKnobState {
+  connected: boolean;
   knob: PB.Knob;
   serial?: SmartKnobWebSerial;
   state: PB.SmartKnobState;
@@ -35,6 +36,7 @@ interface KnobConfig {
 
 // export const useSmartKnobStore = create<SmartKnobState>((set) => ({
 export const useSmartKnobStore = create<SmartKnobState>((_) => ({
+  connected: false,
   knob: PB.Knob.create(),
   // setKnob: (knob: PB.Knob) => set({ knob }),
 

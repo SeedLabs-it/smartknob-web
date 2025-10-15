@@ -1,22 +1,22 @@
-import { useEffect, useState } from "react";
-import "./App.scss";
-import { PB, SETTINGS } from "./proto/dist/protos";
-import { SmartKnobWebSerial } from "./webserial";
+import { PB, SETTINGS } from "@/proto/dist/protos";
+import { useSmartKnobStore } from "@/stores/smartKnobStore";
+import { SmartKnobLog } from "@/types";
+import { SmartKnobWebSerial } from "@/webserial";
 import { IconMoon, IconSun } from "@tabler/icons-react";
-import seedlabsLogo from "./assets/logoFull_white_transparent.webp";
-import DashItem from "./components/DashItem";
-import LogDashItem from "./components/LogDashItem";
-import StrainCalib from "./components/StrainCalibration/StrainCalib";
-import { SmartKnobLog } from "./types";
-import { useSmartKnobStore } from "./stores/smartKnobStore";
-import ConfigDashItem from "./components/ConfigDashItem/ConfigDashItem";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import seedlabsLogo from "@/assets/logoFull_white_transparent.webp";
+import { toast } from "react-toastify";
 
-function App() {
-  const { knob, serial, log, fullLog } = useSmartKnobStore();
+export const Route = createFileRoute("/_layout")({
+  component: LayoutComponent,
+});
+
+function LayoutComponent() {
+  const { connected, knob, log, fullLog } = useSmartKnobStore();
 
   const [darkMode, setDarkMode] = useState(false);
 
-  const [connectionState, setConnectionState] = useState(false);
   const [_, setStrainCalibState] = useState<PB.StrainCalibState | undefined>(
     undefined,
   );
@@ -33,10 +33,17 @@ function App() {
       }
     } catch (error) {
       console.error("Error with serial port:", error);
-      setConnectionState(false);
+      useSmartKnobStore.setState({ serial: undefined });
+      useSmartKnobStore.setState({ connected: false });
     }
   };
 
+  const disconnectAlert = () =>
+    toast("Device disconnected", {
+      type: "warning",
+      closeOnClick: true,
+      autoClose: 3000,
+    });
   const connectToSerial = async () => {
     try {
       if (navigator.serial) {
@@ -44,26 +51,27 @@ function App() {
           filters: SmartKnobWebSerial.USB_DEVICE_FILTERS,
         });
         serialPort.addEventListener("disconnect", async () => {
-          setConnectionState(false);
+          useSmartKnobStore.setState({ connected: false });
           console.log("Device disconnected");
-          alert("Device disconnected");
+          disconnectAlert();
         });
         connectToSmartKnob(serialPort);
       } else {
         console.error("Web Serial API is not supported in this browser.");
         // setSmartKnob(undefined);
         useSmartKnobStore.setState({ serial: undefined });
-        setConnectionState(false);
+        useSmartKnobStore.setState({ connected: false });
       }
     } catch (error) {
       console.error("Error with serial port:", error);
-      setConnectionState(false);
+      useSmartKnobStore.setState({ serial: undefined });
+      useSmartKnobStore.setState({ connected: false });
     }
   };
 
   const onMessage = (message: PB.FromSmartKnob) => {
     if (message.payload) {
-      setConnectionState(true);
+      useSmartKnobStore.setState({ connected: true });
     }
 
     if (message.payload != "log" && message.payload != "smartknobState")
@@ -99,16 +107,15 @@ function App() {
                 ? settings.ledRing?.minBright / (65535 / 100)
                 : 10,
               color:
-                "#" + settings.ledRing?.color?.toString(16).padStart(6, "0") ??
-                "#008080",
+                "#" + settings.ledRing?.color?.toString(16).padStart(6, "0"),
               beacon: {
                 enabled: settings.ledRing?.beacon?.enabled ?? true,
                 brightness: settings.ledRing?.beacon?.brightness ?? 10,
                 color:
                   "#" +
-                    settings.ledRing?.beacon?.color
-                      ?.toString(16)
-                      .padStart(6, "0") ?? "#008080",
+                  settings.ledRing?.beacon?.color
+                    ?.toString(16)
+                    .padStart(6, "0"),
               },
             },
           },
@@ -175,8 +182,6 @@ function App() {
     }
   }, [newLogMessage]);
 
-  let index = 1;
-
   return (
     <>
       <div className="skdk-container">
@@ -191,40 +196,13 @@ function App() {
           <button
             className="connect-btn"
             onClick={connectToSerial}
-            disabled={connectionState}
+            disabled={connected}
           >
-            {connectionState ? <>{knob?.macAddress}</> : <>CONNECT</>}
+            {connected ? <>{knob?.macAddress}</> : <>CONNECT</>}
           </button>
         ) : null}
         {navigator.serial ? (
-          <div
-            id="skdk-inner-container"
-            className={`${connectionState ? "" : "disabled"}`}
-          >
-            <ConfigDashItem index={index++} />
-
-            <DashItem
-              title="MOTOR CALIBRATION"
-              index={index++}
-              status={
-                knob?.persistentConfig?.motor?.calibrated
-                  ? "CALIBRATED"
-                  : "NOT CALIBRATED"
-              }
-            >
-              <button
-                className="btn m-3"
-                onClick={() =>
-                  serial?.sendCommand(PB.SmartKnobCommand.MOTOR_CALIBRATE)
-                }
-              >
-                Press to start motor calibration.
-              </button>
-            </DashItem>
-            <StrainCalib index={index++} />
-
-            <LogDashItem index={index++} />
-          </div>
+          <Outlet />
         ) : (
           "Web Serial API is not supported in this browser."
         )}
@@ -239,5 +217,3 @@ function App() {
     </>
   );
 }
-
-export default App;

@@ -30,6 +30,12 @@
   }
 }
 
+input {
+  background: var(--fallback-bc, oklch(var(--bc) / 1));
+  border: 2px var(--fallback-b1, oklch(var(--b1) / var(--tw-bg-opacity)));
+  color: black;
+}
+
 .color-mode-toggle {
   @apply absolute right-3 top-3;
 }
