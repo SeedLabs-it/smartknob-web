@@ -7,6 +7,9 @@ export class SmartKnobWebSerial extends SmartKnobCore {
   private writer: WritableStreamDefaultWriter<Uint8Array> | undefined =
     undefined;
 
+  private onConnectCallbacks: (() => void)[] = [];
+  private disconnectCallbacks: (() => void)[] = [];
+
   constructor(port: SerialPort, onMessage: MessageCallback) {
     super(onMessage, (packet: Uint8Array) => {
       this.writer?.write(packet).catch(this.onError);
@@ -14,21 +17,16 @@ export class SmartKnobWebSerial extends SmartKnobCore {
     this.port = port;
     this.portAvailable = true;
     this.port.addEventListener("disconnect", async () => {
-      console.log("Device disconnected");
-      // this.port = null;
-      // this.portAvailable = false;
-      if (this.port !== null) {
-        // console.log(this.port);
-        // this.port.close();
-        // for (let index = 0; index < 9; index++) {
-        //   // if (this.port.)
-        //   // this.port.close();
-        //   await new Promise((resolve) => setTimeout(resolve, 2000));
-        //   console.log("Trying to reconnect...");
-        //   this.openAndLoop();
-        // }
-      }
+      this.disconnectCallbacks.forEach((cb) => cb());
     });
+  }
+
+  public addConnectCB(cb: () => void) {
+    this.onConnectCallbacks.push(cb);
+  }
+
+  public addDisconnectCB(cb: () => void) {
+    this.disconnectCallbacks.push(cb);
   }
 
   public async openAndLoop() {
@@ -57,6 +55,7 @@ export class SmartKnobWebSerial extends SmartKnobCore {
             break;
           }
           if (value !== undefined) {
+            this.onConnectCallbacks.forEach((cb) => cb());
             this.onReceivedData(value);
           }
         }
