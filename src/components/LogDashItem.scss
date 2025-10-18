@@ -2,21 +2,34 @@
   @apply flex flex-col gap-4;
 }
 
+.log-download-container {
+  @apply flex justify-start px-3 sm:px-6;
+}
+
+.log-download-btn {
+  @apply flex h-8 items-center gap-1 border-[0.2rem] border-skdk bg-skdk px-3 py-1 font-82ND text-xs text-primary transition-colors sm:px-4 dark:border-gray-600 dark:bg-gray-800 dark:text-primary;
+  &:hover {
+    @apply border-secondary bg-secondary dark:border-secondary dark:bg-secondary dark:text-primary;
+  }
+}
+
 .log-header {
-  @apply flex justify-between gap-2 overflow-x-scroll px-3 sm:px-6;
-  &::-webkit-scrollbar {
-    @apply hidden;
-  }
-  .log-levels {
-    @apply flex h-full gap-2 text-nowrap;
-  }
-  .log-toggles {
-    @apply flex gap-2;
-  }
+  @apply flex flex-wrap items-center gap-2 px-3 sm:px-6;
+
   button {
-    @apply flex items-center gap-1 rounded-full border-2 border-skdk px-3 py-1 sm:px-6 dark:text-primary;
+    @apply flex h-10 items-center gap-1 border-[0.2rem] border-skdk bg-transparent px-3 py-1 font-82ND text-xs transition-colors sm:px-4 dark:border-gray-600 dark:text-primary;
+    &:hover {
+      @apply border-secondary bg-secondary dark:border-secondary dark:bg-secondary;
+    }
     &.active {
-      @apply bg-skdk text-primary;
+      @apply border-skdk bg-skdk text-primary dark:border-primary dark:bg-skdk;
+    }
+  }
+
+  .log-toggle {
+    @apply border-dashed;
+    &.active {
+      @apply border-dashed border-skdk bg-skdk text-primary dark:border-primary dark:bg-skdk;
     }
   }
 }
@@ -25,36 +38,58 @@
   @apply inline-block h-3 w-3 rounded-full;
 }
 
-.log-console {
-  @apply mx-3 h-96 flex-col  overflow-hidden  overflow-x-auto bg-secondary p-4 text-xs dark:bg-skdk;
-  ol {
-    @apply h-full min-w-fit  overflow-y-auto pb-3 pr-3;
-    &::-webkit-scrollbar {
-      @apply w-3 rounded-lg bg-primary;
-    }
-    &::-webkit-scrollbar-thumb {
-      @apply rounded-lg bg-skdk dark:bg-secondary;
-    }
-    &::-webkit-scrollbar-corner {
-      display: none;
-    }
-    li {
-      @apply flex flex-row justify-between p-2;
-      &:nth-last-child(odd) {
-        @apply bg-primary bg-opacity-25;
-      }
-      div {
-        @apply flex flex-row items-center gap-2;
-        .log-console-time {
-          @apply text-primary;
-        }
-        .log-console-msg {
-          @apply text-white;
-        }
-      }
-      .log-console-origin {
-        @apply ml-4 text-[10px] dark:text-gray-300;
-      }
-    }
+.bg-log-info {
+  background-color: #00ffff; // Cyan - matches ANSI \x1b[36m
+}
+
+.bg-log-debug {
+  background-color: #808080; // Gray - matches ANSI \x1b[90m
+}
+
+.bg-log-warning {
+  background-color: #cdcd00; // Yellow - matches ANSI \x1b[33m (terminal renders as darker yellow)
+}
+
+.bg-log-error {
+  background-color: #ff0000; // Red - matches ANSI \x1b[31m
+}
+
+.log-terminal {
+  @apply mx-3 mb-3;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 12px;
+  background-color: #000000;
+  overflow: hidden;
+  width: calc(100% - 1.5rem);
+
+  .xterm {
+    padding: 0;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .xterm-viewport {
+    background-color: #000000 !important;
+    width: 100% !important;
+  }
+
+  .xterm-screen {
+    background-color: #000000 !important;
+    width: 100% !important;
+  }
+
+  .xterm-viewport::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .xterm-viewport::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+  }
+
+  .xterm-viewport::-webkit-scrollbar-track {
+    background-color: #222;
   }
 }
