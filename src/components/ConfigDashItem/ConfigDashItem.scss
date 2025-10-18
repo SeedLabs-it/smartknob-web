@@ -1,13 +1,28 @@
+.config-container {
+  @apply m-3 flex gap-6;
+}
+
+.config-section {
+  @apply flex flex-grow flex-col gap-3;
+}
+
+.config-section-title {
+  @apply border-b-[0.2rem] border-skdk pb-2 font-82XC text-xl dark:border-primary dark:text-primary;
+}
+
 .form-control {
   align-items: start !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
+.label-text {
+  @apply font-82XC;
+}
+
 input[type="number"] {
   background: var(--fallback-bc, oklch(var(--bc) / 1));
   border: 2px var(--fallback-b1, oklch(var(--b1) / var(--tw-bg-opacity)));
-
   color: black;
 }
 
@@ -30,6 +45,20 @@ input[type="range"]::-webkit-slider-runnable-track {
   border: 0;
 }
 
-input[type="color"] {
-  background: var(--fallback-bc, oklch(var(--bc) / 1));
+.config-color {
+  @apply h-10 w-20 cursor-pointer border-[0.2rem] border-skdk bg-transparent transition-colors dark:border-gray-600;
+  &:hover {
+    @apply border-secondary dark:border-secondary;
+  }
+}
+
+.config-actions {
+  @apply mx-3 mb-3 flex justify-start;
+}
+
+.config-save-btn {
+  @apply border-[0.2rem] border-skdk bg-skdk px-8 py-3 font-82ND font-bold text-primary transition-all dark:border-gray-600 dark:bg-gray-800;
+  &:hover {
+    @apply border-secondary bg-secondary dark:border-secondary dark:bg-secondary;
+  }
 }

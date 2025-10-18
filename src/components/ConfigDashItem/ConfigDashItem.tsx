@@ -10,22 +10,21 @@ interface ConfigDashItemProps {
 const ConfigDashItem: React.FC<ConfigDashItemProps> = ({ index }) => {
   const { knob, serial, settings } = useSmartKnobStore();
 
-  // console.log("settings", settings);
-
   return (
     <DashItem
       title="CONFIGURE DEVICE"
       index={index}
       status={
-        knob?.macAddress !== "" && knob?.settings === null // TODO: add better check in the future, check firm version and or protbuf protocol version
+        knob?.macAddress !== "" && knob?.settings === null
           ? "FIRMWARE VERSION NOT SUPPORTED"
           : ""
       }
-      className={`${knob?.macAddress !== "" && knob?.settings === null ? "pointer-events-none touch-none opacity-40" : ""}`} //! TODO REMOVE ACTIVE CLASS ONLY FOR TESTING
+      className={`${knob?.macAddress !== "" && knob?.settings === null ? "pointer-events-none touch-none opacity-40" : ""}`}
     >
-      <div className="$  m-3 flex gap-6">
-        <div className="flex flex-grow flex-col gap-3">
-          <h3>Screen Dimming</h3>
+      <div className="config-container">
+        <div className="config-section">
+          <h3 className="config-section-title">Screen Dimming</h3>
+
           <label className="label form-control cursor-pointer">
             <span className="label-text">Enable/Disable</span>
             <input
@@ -39,14 +38,13 @@ const ConfigDashItem: React.FC<ConfigDashItemProps> = ({ index }) => {
             />
           </label>
 
-          <label className="label form-control cursor-pointer">
-            <span className="label-text">Timeout</span>
+          <label className="label form-control">
+            <span className="label-text">Timeout (seconds)</span>
             <input
               type="number"
               min={0}
               max={6000}
               value={settings.screen.timeout}
-              placeholder="Timeout"
               className="input input-bordered w-8/12 max-w-xs"
               onChange={(e) => {
                 settings.screen.timeout = parseInt(e.target.value);
@@ -54,6 +52,7 @@ const ConfigDashItem: React.FC<ConfigDashItemProps> = ({ index }) => {
               }}
             />
           </label>
+
           <label className="label form-control cursor-pointer">
             <span className="label-text">Max Brightness</span>
             <input
@@ -87,8 +86,10 @@ const ConfigDashItem: React.FC<ConfigDashItemProps> = ({ index }) => {
             />
           </label>
         </div>
-        <div className="flex flex-grow flex-col gap-3">
-          <h3>Led Ring</h3>
+
+        <div className="config-section">
+          <h3 className="config-section-title">Led Ring</h3>
+
           <label className="label form-control cursor-pointer">
             <span className="label-text">Enable/Disable</span>
             <input
@@ -152,6 +153,7 @@ const ConfigDashItem: React.FC<ConfigDashItemProps> = ({ index }) => {
             <input
               type="color"
               value={settings.ledRing.color}
+              className="config-color"
               onChange={(e) => {
                 settings.ledRing.color = e.target.value;
                 useSmartKnobStore.setState({});
@@ -159,8 +161,10 @@ const ConfigDashItem: React.FC<ConfigDashItemProps> = ({ index }) => {
             />
           </label>
         </div>
-        <div className="flex flex-grow flex-col gap-3">
-          <h3>Beacon</h3>
+
+        <div className="config-section">
+          <h3 className="config-section-title">Beacon</h3>
+
           <label className="label form-control cursor-pointer">
             <span className="label-text">Enable/Disable</span>
             <input
@@ -192,9 +196,8 @@ const ConfigDashItem: React.FC<ConfigDashItemProps> = ({ index }) => {
             <input
               type="color"
               value={settings.ledRing.beacon.color}
+              className="config-color"
               onChange={(e) => {
-                console.log();
-
                 settings.ledRing.beacon.color = e.target.value;
                 useSmartKnobStore.setState({});
               }}
@@ -203,34 +206,36 @@ const ConfigDashItem: React.FC<ConfigDashItemProps> = ({ index }) => {
         </div>
       </div>
 
-      <button
-        className="btn mx-3 mb-3"
-        onClick={() =>
-          serial?.sendSettings(
-            SETTINGS.Settings.create({
-              screen: {
-                ...settings.screen,
-                timeout: settings.screen.timeout * 1000,
-                maxBright: settings.screen.maxBright * (65535 / 100),
-                minBright: settings.screen.minBright * (65535 / 100),
-              },
-              ledRing: {
-                ...settings.ledRing,
-                maxBright: settings.ledRing.maxBright * (65535 / 100),
-                minBright: settings.ledRing.minBright * (65535 / 100),
-                color: parseInt(settings.ledRing.color.slice(1), 16),
-                beacon: {
-                  ...settings.ledRing.beacon,
-                  brightness: settings.ledRing.beacon.brightness * (255 / 100),
-                  color: parseInt(settings.ledRing.beacon.color.slice(1), 16),
+      <div className="config-actions">
+        <button
+          className="config-save-btn"
+          onClick={() =>
+            serial?.sendSettings(
+              SETTINGS.Settings.create({
+                screen: {
+                  ...settings.screen,
+                  timeout: settings.screen.timeout * 1000,
+                  maxBright: settings.screen.maxBright * (65535 / 100),
+                  minBright: settings.screen.minBright * (65535 / 100),
                 },
-              },
-            }),
-          )
-        }
-      >
-        SAVE
-      </button>
+                ledRing: {
+                  ...settings.ledRing,
+                  maxBright: settings.ledRing.maxBright * (65535 / 100),
+                  minBright: settings.ledRing.minBright * (65535 / 100),
+                  color: parseInt(settings.ledRing.color.slice(1), 16),
+                  beacon: {
+                    ...settings.ledRing.beacon,
+                    brightness: settings.ledRing.beacon.brightness * (255 / 100),
+                    color: parseInt(settings.ledRing.beacon.color.slice(1), 16),
+                  },
+                },
+              }),
+            )
+          }
+        >
+          SAVE CONFIGURATION
+        </button>
+      </div>
     </DashItem>
   );
 };
