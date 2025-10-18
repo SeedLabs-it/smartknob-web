@@ -13,7 +13,7 @@ interface LogDashItemProps {
 }
 
 const LogDashItem: React.FC<LogDashItemProps> = ({ index }) => {
-  const { log, fullLog } = useSmartKnobStore();
+  const { log, fullLog, knob } = useSmartKnobStore();
 
   const [selectedLogLevels, setSelectedLogLevels] = useState<Set<PB.LogLevel>>(
     new Set([PB.LogLevel.INFO, PB.LogLevel.WARNING, PB.LogLevel.ERROR]),
@@ -154,6 +154,21 @@ const LogDashItem: React.FC<LogDashItemProps> = ({ index }) => {
           className="log-download-btn"
           onClick={() => {
             const element = document.createElement("a");
+
+            const now = new Date();
+            const deviceInfo = [
+              "=".repeat(60),
+              "SmartKnob Device Log",
+              "=".repeat(60),
+              `Exported: ${now.toLocaleString()}`,
+              "",
+              "Device Information:",
+              `  MAC Address: ${knob?.macAddress || "Not Connected"}`,
+              "",
+              "=".repeat(60),
+              "",
+            ];
+
             const formattedLog = fullLog.map((msg) => {
               const date = new Date(msg.timestamp);
               const hours = String(date.getHours()).padStart(2, "0");
@@ -171,11 +186,14 @@ const LogDashItem: React.FC<LogDashItemProps> = ({ index }) => {
               }
               return logString;
             });
-            const file = new Blob([formattedLog.join("\n")], {
+
+            const fullContent = [...deviceInfo, ...formattedLog].join("\n");
+
+            const file = new Blob([fullContent], {
               type: "text/plain",
             });
             element.href = URL.createObjectURL(file);
-            element.download = "log.txt";
+            element.download = `smartknob_log_${knob?.macAddress || "unknown"}_${now.getTime()}.txt`;
             document.body.appendChild(element);
             element.click();
             document.body.removeChild(element);
