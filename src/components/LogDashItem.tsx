@@ -51,15 +51,18 @@ const LogDashItem: React.FC<LogDashItemProps> = ({ index }) => {
     }
   }, []);
 
-  // Reinitialize terminal when switching between modes
+  // Reinitialize terminal when switching between modes (but not on scroll)
   useEffect(() => {
+    let hasBeenVisible = false;
+
     const reinitializeTerminal = () => {
-      if (terminalRef.current) {
+      if (terminalRef.current && !hasBeenVisible) {
         terminalRef.current.innerHTML = "";
 
         const cols = Math.floor(terminalRef.current.offsetWidth / 9);
         term = new Terminal({ cols: cols > 20 ? cols : 40, rows: 20 });
         term.open(terminalRef.current);
+        hasBeenVisible = true;
       }
     };
 

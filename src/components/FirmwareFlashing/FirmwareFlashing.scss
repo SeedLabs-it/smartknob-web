@@ -59,20 +59,14 @@
 }
 
 .firmware-flashing-action-btn {
-  @apply flex items-center gap-2 rounded-lg px-6 py-3 font-82ND font-bold transition-all duration-200;
+  @apply flex h-8 items-center gap-2 border-[0.2rem] border-skdk bg-skdk px-3 py-1 font-82ND text-xs text-primary transition-colors sm:px-4 dark:border-gray-600 dark:bg-gray-800 dark:text-primary;
 
-  &.secondary {
-    @apply border-[0.2rem] border-skdk bg-primary;
-
-    &:hover:not(:disabled) {
-      @apply border-secondary bg-secondary;
-      transform: translateY(-1px);
-    }
+  &:hover:not(:disabled) {
+    @apply border-secondary bg-secondary dark:border-secondary dark:bg-secondary dark:text-primary;
   }
 
   &:disabled {
     @apply cursor-not-allowed opacity-60;
-    transform: none !important;
   }
 }
 
@@ -81,10 +75,23 @@
   height: 100%;
   border: 1px solid #333;
   border-radius: 4px;
-  font-family: monospace;
-  font-size: 12px;
   padding: 12px;
-  overflow: auto;
+  background-color: #000000;
+  overflow: hidden;
+
+  .xterm {
+    padding: 0;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .xterm-viewport {
+    background-color: #000000 !important;
+  }
+
+  .xterm-screen {
+    background-color: #000000 !important;
+  }
 }
 
 // Dark mode support
