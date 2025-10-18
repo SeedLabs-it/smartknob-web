@@ -1,0 +1,115 @@
+.firmware-flashing {
+  @apply w-full;
+}
+
+.firmware-flashing-header {
+  @apply mb-8 text-center;
+
+  h2 {
+    @apply mb-2 font-82XC text-3xl sm:text-4xl;
+  }
+
+  p {
+    @apply font-82ND text-lg text-secondary;
+  }
+}
+
+.firmware-flashing-content {
+  @apply border-[0.2rem] border-skdk bg-primary p-6;
+}
+
+.firmware-flashing-section {
+  @apply mb-6;
+
+  &:last-child {
+    @apply mb-0;
+  }
+
+  h3 {
+    @apply mb-4 font-82ND text-xl font-bold;
+  }
+}
+
+.firmware-flashing-section-header {
+  @apply flex items-center justify-between mb-4;
+
+  h3 {
+    @apply mb-0 font-82ND text-xl font-bold;
+  }
+}
+
+.firmware-flashing-file-upload {
+  @apply flex flex-col gap-4;
+}
+
+.firmware-flashing-file-input {
+  @apply hidden;
+}
+
+.firmware-flashing-file-button {
+  @apply flex cursor-pointer items-center gap-2 border-[0.2rem] border-dashed border-skdk bg-primary p-4 text-center transition-all duration-200;
+
+  &:hover:not(:disabled) {
+    @apply border-secondary bg-secondary;
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+}
+
+.firmware-flashing-action-btn {
+  @apply flex items-center gap-2 rounded-lg px-6 py-3 font-82ND font-bold transition-all duration-200;
+
+  &.secondary {
+    @apply border-[0.2rem] border-skdk bg-primary;
+
+    &:hover:not(:disabled) {
+      @apply border-secondary bg-secondary;
+      transform: translateY(-1px);
+    }
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-60;
+    transform: none !important;
+  }
+}
+
+.firmware-flashing-terminal {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #333;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 12px;
+  overflow: auto;
+}
+
+// Dark mode support
+.dark .firmware-flashing-content {
+  @apply border-primary bg-black;
+}
+
+.dark .firmware-flashing-section h3 {
+  @apply text-primary;
+}
+
+.dark .firmware-flashing-file-button {
+  @apply border-primary bg-skdk text-primary;
+
+  &:hover:not(:disabled) {
+    @apply border-secondary bg-secondary text-primary;
+  }
+}
+
+.dark .firmware-flashing-action-btn {
+  &.secondary {
+    @apply border-primary bg-skdk text-primary;
+
+    &:hover:not(:disabled) {
+      @apply border-secondary bg-secondary text-primary;
+    }
+  }
+}

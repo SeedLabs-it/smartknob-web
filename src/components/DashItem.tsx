@@ -1,5 +1,4 @@
-import React, { HTMLAttributes, PropsWithChildren } from "react";
-import { useEffect, useState } from "react";
+import { HTMLAttributes, PropsWithChildren, useEffect, useState } from "react";
 import "./DashItem.scss";
 
 interface DashItemProps
@@ -43,11 +42,11 @@ const DashItem: React.FC<DashItemProps> = ({
           <h1>{title}</h1>
         </div>
         <span>{open ? ">" : "<"}</span>
-        {status ? (
-          <p className="absolute left-2 top-1 text-xs">
-            {status ? status : "STATUS: OK"}
+        {status && (
+          <p className="absolute left-2 top-1 text-[0.5rem] leading-tight sm:text-xs">
+            {status}
           </p>
-        ) : null}
+        )}
       </header>
       <div className="item_inner_container overflow-visible">{children}</div>
     </div>

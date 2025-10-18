@@ -1,5 +1,6 @@
 import { PB, SETTINGS } from "@/proto/dist/protos";
 import { useSmartKnobStore } from "@/stores/smartKnobStore";
+import { useAppModeStore } from "@/stores/appModeStore";
 import { SmartKnobLog } from "@/types";
 import { SmartKnobWebSerial } from "@/webserial";
 import { IconMoon, IconSun } from "@tabler/icons-react";
@@ -7,13 +8,16 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import seedlabsLogo from "@/assets/logoFull_white_transparent.webp";
 import { toast } from "react-toastify";
+import ModeSelector from "@/components/ModeSelector/ModeSelector";
+import FirmwareFlashing from "@/components/FirmwareFlashing/FirmwareFlashing";
 
 export const Route = createFileRoute("/_layout")({
   component: LayoutComponent,
 });
 
 function LayoutComponent() {
-  const { connected, knob, log, fullLog } = useSmartKnobStore();
+  const { connected, knob, log, fullLog, serial } = useSmartKnobStore();
+  const { currentMode, setMode } = useAppModeStore();
 
   const [darkMode, setDarkMode] = useState(false);
 
@@ -24,17 +28,12 @@ function LayoutComponent() {
 
   const connectToSmartKnob = async (serialPort: SerialPort) => {
     try {
-      // var smartKnob = null;
-      const smartKnob_ = new SmartKnobWebSerial(serialPort, onMessage);
-      // setSmartKnob(smartKnob_);
-      useSmartKnobStore.setState({ serial: smartKnob_ });
-      if (smartKnob_ !== null) {
-        await smartKnob_.openAndLoop();
-      }
+      const smartKnob = new SmartKnobWebSerial(serialPort, onMessage);
+      useSmartKnobStore.setState({ serial: smartKnob });
+      await smartKnob.openAndLoop();
     } catch (error) {
       console.error("Error with serial port:", error);
-      useSmartKnobStore.setState({ serial: undefined });
-      useSmartKnobStore.setState({ connected: false });
+      useSmartKnobStore.setState({ serial: undefined, connected: false });
     }
   };
 
@@ -44,28 +43,33 @@ function LayoutComponent() {
       closeOnClick: true,
       autoClose: 3000,
     });
-  const connectToSerial = async () => {
+
+  const handleConnectDisconnect = async () => {
+    if (connected && serial) {
+      await serial.disconnect();
+      useSmartKnobStore.setState({ connected: false, serial: undefined });
+      return;
+    }
+
     try {
-      if (navigator.serial) {
-        const serialPort = await navigator.serial.requestPort({
-          filters: SmartKnobWebSerial.USB_DEVICE_FILTERS,
-        });
-        serialPort.addEventListener("disconnect", async () => {
-          useSmartKnobStore.setState({ connected: false });
-          console.log("Device disconnected");
-          disconnectAlert();
-        });
-        await connectToSmartKnob(serialPort);
-      } else {
+      if (!navigator.serial) {
         console.error("Web Serial API is not supported in this browser.");
-        // setSmartKnob(undefined);
-        useSmartKnobStore.setState({ serial: undefined });
-        useSmartKnobStore.setState({ connected: false });
+        return;
       }
+
+      const serialPort = await navigator.serial.requestPort({
+        filters: SmartKnobWebSerial.USB_DEVICE_FILTERS,
+      });
+
+      serialPort.addEventListener("disconnect", () => {
+        useSmartKnobStore.setState({ connected: false });
+        disconnectAlert();
+      });
+
+      await connectToSmartKnob(serialPort);
     } catch (error) {
       console.error("Error with serial port:", error);
-      useSmartKnobStore.setState({ serial: undefined });
-      useSmartKnobStore.setState({ connected: false });
+      useSmartKnobStore.setState({ serial: undefined, connected: false });
     }
   };
 
@@ -74,8 +78,9 @@ function LayoutComponent() {
       useSmartKnobStore.setState({ connected: true });
     }
 
-    if (message.payload != "log" && message.payload != "smartknobState")
+    if (message.payload !== "log" && message.payload !== "smartknobState") {
       console.log(message);
+    }
 
     if (message.payload === "knob" && message.knob !== null) {
       const knob_ = PB.Knob.create(message.knob);
@@ -112,7 +117,6 @@ function LayoutComponent() {
                 enabled: settings.ledRing?.beacon?.enabled ?? true,
                 brightness: settings.ledRing?.beacon?.brightness ?? 10,
                 color:
-                  // @ts-expect-error unnecessary nullish coalescing
                   "#" +
                   settings.ledRing?.beacon?.color
                     ?.toString(16)
@@ -175,13 +179,20 @@ function LayoutComponent() {
 
     const verboseLogging = localStorage.getItem("verboseLogging") === "true";
 
-    // console.log(verboseLogging);
-
     if (storedLogLevels.has(newLogMessage.level)) {
       if (!verboseLogging && newLogMessage.isVerbose) return;
       useSmartKnobStore.setState({ log: [...log, newLogMessage] });
     }
   }, [newLogMessage]);
+
+  // Disconnect serial when switching to firmware mode
+  useEffect(() => {
+    if (currentMode === "firmware" && connected && serial) {
+      serial.disconnect().then(() => {
+        useSmartKnobStore.setState({ connected: false, serial: undefined });
+      });
+    }
+  }, [currentMode]);
 
   return (
     <>
@@ -193,17 +204,35 @@ function LayoutComponent() {
           <h1>SMARTKNOB DEV KIT</h1>
           <h3>Configuration and Debugging console</h3>
         </div>
+        {navigator.serial && (
+          <div className="connect-status">
+            {connected ? (
+              <span className="connected-status">{knob?.macAddress}</span>
+            ) : (
+              <span className="disconnected-status">Not Connected</span>
+            )}
+          </div>
+        )}
+
         {navigator.serial ? (
-          <button
-            className="connect-btn"
-            onClick={connectToSerial}
-            disabled={connected}
-          >
-            {connected ? <>{knob?.macAddress}</> : <>CONNECT</>}
-          </button>
-        ) : null}
-        {navigator.serial ? (
-          <Outlet />
+          <>
+            <div id="skdk-inner-container">
+              <ModeSelector currentMode={currentMode} onModeChange={setMode} />
+
+              {currentMode === "configurator" && (
+                <div className="connect-section">
+                  <button
+                    className="w-full border-[0.2rem] border-skdk bg-transparent px-8 py-6 font-82ND text-lg font-bold transition-all duration-200 hover:border-secondary hover:bg-secondary sm:text-xl dark:border-primary dark:hover:border-secondary dark:hover:bg-secondary"
+                    onClick={handleConnectDisconnect}
+                  >
+                    {connected ? <>DISCONNECT</> : <>CONNECT TO SMARTKNOB</>}
+                  </button>
+                </div>
+              )}
+
+              {currentMode === "firmware" ? <FirmwareFlashing /> : <Outlet />}
+            </div>
+          </>
         ) : (
           "Web Serial API is not supported in this browser."
         )}
