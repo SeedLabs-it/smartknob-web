@@ -109,7 +109,7 @@ export class SmartKnobWebSerial extends SmartKnobCore {
       try {
         // eslint-disable-next-line no-constant-condition
         while (true) {
-          const { value, done } = await this.reader.read();
+          const { value, done } = await this.reader!.read();
           if (done) {
             break;
           }
