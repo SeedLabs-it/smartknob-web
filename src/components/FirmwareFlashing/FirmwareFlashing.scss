@@ -1,0 +1,122 @@
+.firmware-flashing {
+  @apply w-full;
+}
+
+.firmware-flashing-header {
+  @apply mb-8 text-center;
+
+  h2 {
+    @apply mb-2 font-82XC text-3xl sm:text-4xl;
+  }
+
+  p {
+    @apply font-82ND text-lg text-secondary;
+  }
+}
+
+.firmware-flashing-content {
+  @apply border-[0.2rem] border-skdk bg-primary p-6;
+}
+
+.firmware-flashing-section {
+  @apply mb-6;
+
+  &:last-child {
+    @apply mb-0;
+  }
+
+  h3 {
+    @apply mb-4 font-82ND text-xl font-bold;
+  }
+}
+
+.firmware-flashing-section-header {
+  @apply flex items-center justify-between mb-4;
+
+  h3 {
+    @apply mb-0 font-82ND text-xl font-bold;
+  }
+}
+
+.firmware-flashing-file-upload {
+  @apply flex flex-col gap-4;
+}
+
+.firmware-flashing-file-input {
+  @apply hidden;
+}
+
+.firmware-flashing-file-button {
+  @apply flex cursor-pointer items-center gap-2 border-[0.2rem] border-dashed border-skdk bg-primary p-4 text-center transition-all duration-200;
+
+  &:hover:not(:disabled) {
+    @apply border-secondary bg-secondary;
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+}
+
+.firmware-flashing-action-btn {
+  @apply flex h-8 items-center gap-2 border-[0.2rem] border-skdk bg-skdk px-3 py-1 font-82ND text-xs text-primary transition-colors sm:px-4 dark:border-gray-600 dark:bg-gray-800 dark:text-primary;
+
+  &:hover:not(:disabled) {
+    @apply border-secondary bg-secondary dark:border-secondary dark:bg-secondary dark:text-primary;
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+}
+
+.firmware-flashing-terminal {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 12px;
+  background-color: #000000;
+  overflow: hidden;
+
+  .xterm {
+    padding: 0;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .xterm-viewport {
+    background-color: #000000 !important;
+  }
+
+  .xterm-screen {
+    background-color: #000000 !important;
+  }
+}
+
+// Dark mode support
+.dark .firmware-flashing-content {
+  @apply border-primary bg-black;
+}
+
+.dark .firmware-flashing-section h3 {
+  @apply text-primary;
+}
+
+.dark .firmware-flashing-file-button {
+  @apply border-primary bg-skdk text-primary;
+
+  &:hover:not(:disabled) {
+    @apply border-secondary bg-secondary text-primary;
+  }
+}
+
+.dark .firmware-flashing-action-btn {
+  &.secondary {
+    @apply border-primary bg-skdk text-primary;
+
+    &:hover:not(:disabled) {
+      @apply border-secondary bg-secondary text-primary;
+    }
+  }
+}
