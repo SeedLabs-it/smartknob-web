@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { IconCpu, IconSettings } from "@tabler/icons-react";
 
 export type AppMode = "configurator" | "firmware";
