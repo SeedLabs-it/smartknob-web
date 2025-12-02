@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { IconUpload, IconBrandGithub } from "@tabler/icons-react";
+import { IconUpload, IconBrandGithub, IconBolt } from "@tabler/icons-react";
 import { ESPLoader, FlashOptions, LoaderOptions, Transport } from "esptool-js";
 import { Terminal } from "@xterm/xterm";
 import "@xterm/xterm/css/xterm.css";
@@ -131,12 +131,8 @@ export default function FirmwareFlashing() {
 
         if (firmwareFiles.length > 0) {
           toast.success(
-            `Found ${firmwareFiles.length} firmware files. Starting automatic flashing...`,
+            `Found ${firmwareFiles.length} firmware files. Click "Flash Now" to begin.`,
           );
-
-          setTimeout(() => {
-            handleFlash(result.files);
-          }, 1000);
         } else {
           toast.error(
             `No valid firmware files found in zip. Expected: bootloader.bin, partitions.bin, boot_app0.bin, firmware.bin, fatfs.bin\n\nFiles found: ${result.files.map((f) => f.name).join(", ")}`,
@@ -410,6 +406,14 @@ export default function FirmwareFlashing() {
                   ? `${selectedFile.name} (${extractedFiles.length} files extracted)`
                   : selectedFile.name
                 : "Select Firmware Zip File (.zip)"}
+            </button>
+            <button
+              className="firmware-flashing-flash-button"
+              onClick={() => handleFlash()}
+              disabled={isFlashing || extractedFiles.length === 0}
+            >
+              <IconBolt size={20} />
+              Flash Now
             </button>
           </div>
         </div>
