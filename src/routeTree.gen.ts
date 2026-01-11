@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutMotorRouteImport } from './routes/_layout/motor'
+import { Route as LayoutFlashRouteImport } from './routes/_layout/flash'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -27,27 +28,40 @@ const LayoutMotorRoute = LayoutMotorRouteImport.update({
   path: '/motor',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutFlashRoute = LayoutFlashRouteImport.update({
+  id: '/flash',
+  path: '/flash',
+  getParentRoute: () => LayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
+  '/flash': typeof LayoutFlashRoute
   '/motor': typeof LayoutMotorRoute
   '/': typeof LayoutIndexRoute
 }
 export interface FileRoutesByTo {
+  '/flash': typeof LayoutFlashRoute
   '/motor': typeof LayoutMotorRoute
   '/': typeof LayoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_layout': typeof LayoutRouteWithChildren
+  '/_layout/flash': typeof LayoutFlashRoute
   '/_layout/motor': typeof LayoutMotorRoute
   '/_layout/': typeof LayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/motor' | '/'
+  fullPaths: '/flash' | '/motor' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/motor' | '/'
-  id: '__root__' | '/_layout' | '/_layout/motor' | '/_layout/'
+  to: '/flash' | '/motor' | '/'
+  id:
+    | '__root__'
+    | '/_layout'
+    | '/_layout/flash'
+    | '/_layout/motor'
+    | '/_layout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,15 +91,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutMotorRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/flash': {
+      id: '/_layout/flash'
+      path: '/flash'
+      fullPath: '/flash'
+      preLoaderRoute: typeof LayoutFlashRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
 interface LayoutRouteChildren {
+  LayoutFlashRoute: typeof LayoutFlashRoute
   LayoutMotorRoute: typeof LayoutMotorRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutFlashRoute: LayoutFlashRoute,
   LayoutMotorRoute: LayoutMotorRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }

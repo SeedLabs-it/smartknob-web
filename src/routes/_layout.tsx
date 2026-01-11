@@ -4,7 +4,7 @@ import { useAppModeStore } from "@/stores/appModeStore";
 import { SmartKnobLog } from "@/types";
 import { SmartKnobWebSerial } from "@/webserial";
 import { IconMoon, IconSun } from "@tabler/icons-react";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import seedlabsLogo from "@/assets/logoFull_white_transparent.webp";
 import { toast } from "react-toastify";
@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_layout")({
 function LayoutComponent() {
   const { connected, knob, log, fullLog, serial } = useSmartKnobStore();
   const { currentMode, setMode } = useAppModeStore();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [darkMode, setDarkMode] = useState(false);
 
@@ -170,6 +172,15 @@ function LayoutComponent() {
   }, []);
 
   useEffect(() => {
+    const isFlashRoute = location.pathname.endsWith("/flash");
+    if (isFlashRoute && currentMode !== "firmware") {
+      setMode("firmware");
+    } else if (!isFlashRoute && currentMode === "firmware") {
+      setMode("configurator");
+    }
+  }, [currentMode, location.pathname, setMode]);
+
+  useEffect(() => {
     if (newLogMessage == null) return;
     useSmartKnobStore.setState({ fullLog: [...fullLog, newLogMessage] });
 
@@ -217,7 +228,19 @@ function LayoutComponent() {
         {navigator.serial ? (
           <>
             <div id="skdk-inner-container">
-              <ModeSelector currentMode={currentMode} onModeChange={setMode} />
+              <ModeSelector
+                currentMode={currentMode}
+                onModeChange={(mode) => {
+                  setMode(mode);
+                  if (mode === "firmware") {
+                    if (!location.pathname.endsWith("/flash")) {
+                      navigate({ to: "/flash" });
+                    }
+                  } else if (location.pathname.endsWith("/flash")) {
+                    navigate({ to: "/" });
+                  }
+                }}
+              />
 
               {currentMode === "configurator" && (
                 <div className="connect-section">
