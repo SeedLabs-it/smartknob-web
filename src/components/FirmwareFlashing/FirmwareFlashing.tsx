@@ -218,7 +218,6 @@ export default function FirmwareFlashing() {
 
       for (let i = 0; i < firmwareFiles.length; i++) {
         const file = firmwareFiles[i];
-        const lowerName = file.name.toLowerCase();
         const flashAddress = getFlashAddress(file.name);
 
         if (flashAddress === 0x999999) {
