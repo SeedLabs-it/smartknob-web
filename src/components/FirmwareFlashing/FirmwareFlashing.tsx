@@ -70,9 +70,9 @@ export default function FirmwareFlashing() {
     if (lowerName.includes("partition")) return 0x8000;
     if (lowerName.includes("boot_app0")) return 0xe000;
     if (lowerName.includes("firmware")) return 0x10000;
-    if (lowerName.includes("fatfs")) return 0xc50000;
+    if (lowerName.includes("fatfs")) return 0xc51000;
 
-    return 0x10000;
+    return 0x999999; // Invalid address
   };
 
   const extractZipFile = async (
@@ -131,12 +131,8 @@ export default function FirmwareFlashing() {
 
         if (firmwareFiles.length > 0) {
           toast.success(
-            `Found ${firmwareFiles.length} firmware files. Starting automatic flashing...`,
+            `Found ${firmwareFiles.length} firmware files. Ready to flash.`,
           );
-
-          setTimeout(() => {
-            handleFlash(result.files);
-          }, 1000);
         } else {
           toast.error(
             `No valid firmware files found in zip. Expected: bootloader.bin, partitions.bin, boot_app0.bin, firmware.bin, fatfs.bin\n\nFiles found: ${result.files.map((f) => f.name).join(", ")}`,
@@ -222,7 +218,14 @@ export default function FirmwareFlashing() {
 
       for (let i = 0; i < firmwareFiles.length; i++) {
         const file = firmwareFiles[i];
+        const lowerName = file.name.toLowerCase();
         const flashAddress = getFlashAddress(file.name);
+
+        if (flashAddress === 0x999999) {
+          throw new Error(
+            `Unknown flash address for file: ${file.name}. Cannot proceed with flashing.`,
+          );
+        }
         const fileBuffer = await file.arrayBuffer();
         const data = new Uint8Array(fileBuffer);
 
@@ -236,11 +239,11 @@ export default function FirmwareFlashing() {
       try {
         const flashOptions: FlashOptions = {
           fileArray: fileArray,
-          eraseAll: false,
+          eraseAll: true,
           compress: true,
           flashSize: "keep",
-          flashMode: "dio",
-          flashFreq: "40m",
+          flashMode: "qio",
+          flashFreq: "80m",
           calculateMD5Hash: (image: string) =>
             CryptoJS.MD5(CryptoJS.enc.Latin1.parse(image)).toString(),
         };
@@ -399,18 +402,29 @@ export default function FirmwareFlashing() {
               className="firmware-flashing-file-input"
               disabled={isFlashing}
             />
-            <button
-              className="firmware-flashing-file-button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isFlashing}
-            >
-              <IconUpload size={20} />
-              {selectedFile
-                ? extractedFiles.length > 0
-                  ? `${selectedFile.name} (${extractedFiles.length} files extracted)`
-                  : selectedFile.name
-                : "Select Firmware Zip File (.zip)"}
-            </button>
+            <div className="firmware-flashing-file-actions">
+              <button
+                className="firmware-flashing-file-button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isFlashing}
+              >
+                <IconUpload size={20} />
+                {selectedFile
+                  ? extractedFiles.length > 0
+                    ? `${selectedFile.name} (${extractedFiles.length} files extracted)`
+                    : selectedFile.name
+                  : "Select Firmware Zip File (.zip)"}
+              </button>
+              <button
+                className="firmware-flashing-flash-button"
+                onClick={() => handleFlash()}
+                disabled={
+                  isFlashing || (!selectedFile && extractedFiles.length === 0)
+                }
+              >
+                FLASH
+              </button>
+            </div>
           </div>
         </div>
 

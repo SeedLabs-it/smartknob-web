@@ -42,12 +42,28 @@
   @apply flex flex-col gap-4;
 }
 
+.firmware-flashing-file-actions {
+  @apply flex flex-col gap-3 sm:flex-row sm:items-stretch;
+}
+
 .firmware-flashing-file-input {
   @apply hidden;
 }
 
 .firmware-flashing-file-button {
-  @apply flex cursor-pointer items-center gap-2 border-[0.2rem] border-dashed border-skdk bg-primary p-4 text-center transition-all duration-200;
+  @apply flex flex-1 cursor-pointer items-center gap-2 border-[0.2rem] border-dashed border-skdk bg-primary p-4 text-center transition-all duration-200;
+
+  &:hover:not(:disabled) {
+    @apply border-secondary bg-secondary;
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+}
+
+.firmware-flashing-flash-button {
+  @apply flex w-full cursor-pointer items-center justify-center border-[0.2rem] border-solid border-skdk bg-primary px-4 py-3 text-center transition-all duration-200 sm:w-32;
 
   &:hover:not(:disabled) {
     @apply border-secondary bg-secondary;
@@ -104,6 +120,14 @@
 }
 
 .dark .firmware-flashing-file-button {
+  @apply border-primary bg-skdk text-primary;
+
+  &:hover:not(:disabled) {
+    @apply border-secondary bg-secondary text-primary;
+  }
+}
+
+.dark .firmware-flashing-flash-button {
   @apply border-primary bg-skdk text-primary;
 
   &:hover:not(:disabled) {
